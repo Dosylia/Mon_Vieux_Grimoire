@@ -3,11 +3,7 @@ const router = express.Router();
 
 const userCtrl = require('../controllers/user');
 
-// POST ADDING USER/ HASHING PASSWORD
-router.post('/signup', userCtrl.createUser);
-
-
- // LOGIN USER
-router.post('/login', userCtrl.createUser);
+router.post('/signup', userCtrl.signup);
+router.post('/login', userCtrl.login);
 
 module.exports = router;
