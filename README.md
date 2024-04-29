@@ -15,8 +15,9 @@ On this project, React front end was already given and goal is to link it to Nod
 
 ## Hosted result of project
 
-**Frontend**
 This project can only be seen using Frontend and backend yourself:
+
+**Frontend**
 - Get front end here : https://github.com/OpenClassrooms-Student-Center/P7-Dev-Web-livres
 - cd frontend
 - npm install
