@@ -25,6 +25,9 @@ This project can only be seen using Frontend and backend yourself:
 
 **Backend**
 - Clone this repository 
+- Add .env file following this template:
+DB_Url= Link to connect to your MONGO DB
+JWT_SECRET= App secret token of your choice
 - cd backend
 - npm install
 - nodemon server.js
