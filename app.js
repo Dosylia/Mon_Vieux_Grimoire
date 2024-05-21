@@ -1,14 +1,24 @@
 const express = require ('express');
 const mongoose = require('mongoose');
 const path = require('path');
+require('dotenv').config();
 
 const app = express();
 const userRoutes = require('./routes/user');
 const bookRoutes = require('./routes/books');
 
-mongoose.connect('mongodb+srv://user1:hQJKoAq9ABau0Hhm@cluster0.ic6uwmp.mongodb.net/?retryWrites=true&w=majority')
+const dbUrl = process.env.DB_URL;
+
+if (!dbUrl) {
+  console.error('DB_URL n\'est pas défini dans .env');
+  process.exit(1);
+}
+
+mongoose.connect(dbUrl)
   .then(() => console.log('Connexion à MongoDB réussie !'))
-  .catch(() => console.log('Connexion à MongoDB échouée !'));
+  .catch((err) => {
+    console.error('Connexion à MongoDB échouée !', err);
+});
 
 app.use(express.json());
 
