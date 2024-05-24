@@ -39,7 +39,7 @@ exports.addBook = (req, res, next) => {
     const book = new Book({
       ...bookObject,
       userId: req.auth.userId,
-      imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+      imageUrl: `${req.protocol}://${req.get('host')}/images/opt_${req.file.filename}`
     });
   
     book.save()
@@ -50,7 +50,7 @@ exports.addBook = (req, res, next) => {
 exports.updateBook = (req, res, next) => { 
     const bookObject = req.file ? {
         ...JSON.parse(req.body.book),
-        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+        imageUrl: `${req.protocol}://${req.get('host')}/images/opt_${req.file.filename}`
     } : { ...req.body };
   
     delete bookObject._userId;
@@ -60,13 +60,18 @@ exports.updateBook = (req, res, next) => {
                 res.status(401).json({ message : 'Not authorized'});
             } else {
                 Book.updateOne({ _id: req.params.id}, { ...bookObject, _id: req.params.id})
-                .then(() => res.status(200).json({message : 'Objet modifié!'}))
+                .then(() => {
+                    res.status(200).json({ message: 'book successfully updated' });
+                    const pictureToReplace = book.imageUrl.split('/images')[1];
+                    req.file && fs.unlink(`images/${pictureToReplace}`, (err => {
+                        if (err) console.log(err);
+                    }))
+                })
                 .catch(error => res.status(401).json({ error }));
-            }
-        })
-        .catch((error) => {
-            res.status(400).json({ error });
-        });
+        }
+    })
+    .catch(error => res.status(400).json({ error }));
+
 };
 
 exports.deleteBook = (req, res, next) => {

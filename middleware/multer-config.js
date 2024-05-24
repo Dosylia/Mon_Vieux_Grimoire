@@ -1,64 +1,56 @@
 const multer = require('multer');
 const sharp = require('sharp');
-const fs = require('fs').promises;
-const os = require('os');
-const path = require('path');
+path = require('path');
+fs = require('fs');
 
-const MIME_TYPES = {
-  'image/jpg': 'jpg',
-  'image/jpeg': 'jpg',
-  'image/png': 'png',
-  'image/webp': 'webp'
-};
-
+//Set storage and name of picture
 const storage = multer.diskStorage({
-  destination: (req, file, callback) => {
-    callback(null, 'images');
-  },
-  filename: (req, file, callback) => {
-    const name = file.originalname.split(' ').join('_');
-    const extension = MIME_TYPES[file.mimetype];
-    const timestamp = Date.now();
-    callback(null, `${name}_${timestamp}.${extension}`);
-  }
+    destination: (req, file, callback) => {
+        callback(null, 'images');
+    },
+    filename: (req, file, callback) => {
+        const name = file.originalname.split(' ').join('_');
+        callback(null, name + Date.now() + '.webp');
+    }
 });
 
-const upload = multer({
-    storage: storage,
-    fileFilter: (req, file, callback) => {
-        if (MIME_TYPES[file.mimetype]) {
-            callback(null, true)
-        } else {
-            callback(new Error('Type de fichier invalide !'))
-        }
-    },
-}).single('image')
-
-const optimize = async (req, res, next) => {
-    if (!req.file) {
-        return next();
-    }
-
-    const filePath = req.file.path;
-    const tempFilePath = path.join(os.tmpdir(), `${Date.now()}_optimized`);
-  
-
-    try {
-        await sharp(filePath)
-            .resize({ width: 160, height: 260 })
-            .toBuffer()
-            .then(async (data) => {
-                await fs.writeFile(tempFilePath, data);
-            });
-
-        // Renommer tempFilePath pour écraser l'original
-        await fs.rename(tempFilePath, filePath);
-
-        next();
-    } catch (error) {
-        next(error);
+//Make sure pictures only are sent
+const filter = (req, file, callback) => {
+    if (file.mimetype.split("/")[0] === 'image') {
+        callback(null, true);
+    } else {
+        callback(new Error("Les fichiers ne peuvent être que des images"));
     }
 };
+
+//Upload picture
+const upload = multer({ storage: storage, fileFilter: filter }).single('image');
+
+
+const optimize = (req, res, next) => {
+    if (req.file) {
+        const filePath = req.file.path;
+        const output = path.join('images', `opt_${req.file.filename}`); // Name of optimized picture
+        sharp(filePath)
+            .resize({ width: null, height: 568, fit: 'inside', background: { r: 255, g: 255, b: 255, alpha: 0 } }) // Resize picture
+            .webp() // Picture to webp
+            .toFile(output) // Upload new picture 
+            .then(() => {
+                fs.unlink(filePath, (err) => { // Delete old picture
+                    // if (err) {   <- Code not used, permission issue (Error: EPERM: operation not permitted)
+                    //     return next(err);
+                    // }
+                    req.file.path = output;
+                    next();
+                })
+            })
+            .catch(err => next(err));
+    } else {
+        return next();
+    }
+};
+
+
 
 module.exports = {
     upload,
