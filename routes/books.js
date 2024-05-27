@@ -12,7 +12,7 @@ router.get('/', booksCtrl.showAllBooks);
 router.get('/bestrating', booksCtrl.showBooksByBestRating);
 router.post('/', auth, upload, optimize, booksCtrl.addBook);
 router.get('/:id', booksCtrl.showBookById);
-router.put('/:id', auth, upload, optimize, booksCtrl.updateBook);
+router.put('/:id', auth, upload, optimize, booksCtrl.updateBook); // Put = Update
 router.delete('/:id', auth, booksCtrl.deleteBook);
 router.post('/:id/rating', auth, booksCtrl.addBookRating);
 
