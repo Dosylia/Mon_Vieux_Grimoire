@@ -37,9 +37,10 @@ const optimize = (req, res, next) => {
             .toFile(output) // Upload new picture 
             .then(() => {
                 fs.unlink(filePath, (err) => { // Delete old picture
-                    // if (err) {   <- Code not used, permission issue (Error: EPERM: operation not permitted)
-                    //     return next(err);
-                    // }
+                    if (err) {   // <- Code not used, permission issue (Error: EPERM: operation not permitted)
+                        console.log(err)
+                        next();
+                    }
                     req.file.path = output;
                     next();
                 })

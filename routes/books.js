@@ -8,7 +8,7 @@ const router = express.Router();
 const booksCtrl = require('../controllers/books');
 
 
-router.get('/', booksCtrl.showAllBooks);
+router.get('/', booksCtrl.showAllBooks); // Seulement besoin du / car app.js ligne 32 ce document est appelé avec la base de la route
 router.get('/bestrating', booksCtrl.showBooksByBestRating);
 router.post('/', auth, upload, optimize, booksCtrl.addBook);
 router.get('/:id', booksCtrl.showBookById);
