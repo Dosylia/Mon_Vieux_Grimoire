@@ -33,11 +33,11 @@ exports.showBooksByBestRating = (req, res, next) => {
 
 exports.addBook = (req, res, next) => { 
     const bookObject = JSON.parse(req.body.book);
-    delete bookObject._id; // Deleting those parameters to make sure right one are being used.
+    delete bookObject._id; // Deleting those parameters to make sure right one are being used and no one changed them
     delete bookObject._userId;
     const book = new Book({
       ...bookObject, // ... syntax to copy ll properties easely except the two userId that got deleted above for safety purpose.
-      userId: req.auth.userId,
+      userId: req.auth.userId, //using userId linked with token to be sure right user adding book
       imageUrl: `${req.protocol}://${req.get('host')}/images/opt_${req.file.filename}` // Sending picture link to database 
     });
   
@@ -113,7 +113,7 @@ exports.addBookRating = (req, res, next) => {
             // Calculate new rating
             let totalRating = 0;
             for (let rating of book.ratings) { // Calculate new rating using loop for of
-                totalRating += rating.grade;
+                totalRating += rating.grade; // we add the number of each rating to total rating
             }
             book.averageRating = totalRating / book.ratings.length;
     

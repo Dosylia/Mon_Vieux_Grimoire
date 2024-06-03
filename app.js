@@ -1,5 +1,6 @@
 const express = require ('express');
 const mongoose = require('mongoose');
+const mongoSanitize = require('express-mongo-sanitize');
 const path = require('path');
 require('dotenv').config();
 
@@ -21,6 +22,10 @@ mongoose.connect(dbUrl)
 });
 
 app.use(express.json());
+
+app.use(mongoSanitize({ // Replace dangerous char
+  replaceWith: '_',
+}));
 
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
