@@ -5,15 +5,21 @@ require('dotenv').config({ path: '../.env' });
 const User = require('../models/User');
 
 exports.signup = (req, res, next) => {
-    bcrypt.hash(req.body.password, 10) // using bcrypt to hash password, 10 is how strong hash will be
+    bcrypt.hash(req.body.password, 10)
       .then(hash => {
         const user = new User({
           email: req.body.email,
           password: hash
         });
-        user.save() // saving user
+        user.save()
           .then(() => res.status(201).json({ message: 'Utilisateur créé !' }))
-          .catch(error => res.status(400).json({ error }));
+          .catch(error => {
+            if (error.code === 11000) { // Mongo error code if trying to use same email
+              res.status(400).json({ message: 'Impossible de créer l\'utilisateur.' });
+            } else {
+              res.status(400).json({ error });
+            }
+          });
       })
       .catch(error => res.status(500).json({ error }));
   };
